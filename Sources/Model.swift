@@ -27,6 +27,12 @@ extension ModelValue where Encoded == Int {
     }
 }
 
+extension ModelValue where Encoded == Bool {
+	public static var anyValue: AnyValue {
+		return AnyValue(value)
+	}
+}
+
 extension ModelValue where Encoded == String {
     public static var anyValue: AnyValue {
         return AnyValue(value)
@@ -68,6 +74,10 @@ extension Double: ModelValue {
 
 extension Int: ModelValue {
     public static let value = Value<Int, Int>()
+}
+
+extension Bool: ModelValue {
+	public static let value = Value<Bool, Bool>()
 }
 
 extension Optional: AnyModelValue, ModelValue where Wrapped: ModelValue {

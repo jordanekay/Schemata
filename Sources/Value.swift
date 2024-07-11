@@ -100,6 +100,19 @@ extension AnyValue {
         }
     }
 
+	public init<Decoded>(_ value: Value<Bool, Decoded>) {
+		decoded = Decoded.self
+		encoded = .int
+		encode = { .int(value.encode($0 as! Decoded) ? 1 : 0) } // swiftlint:disable:this force_cast
+		decode = { primitive in
+			if case let .int(int) = primitive {
+				return value.decode(int == 1).map { $0 as Any }
+			} else {
+				return .failure(.typeMismatch)
+			}
+		}
+	}
+
     public init<Decoded>(_ value: Value<String, Decoded>) {
         decoded = Decoded.self
         encoded = .string
