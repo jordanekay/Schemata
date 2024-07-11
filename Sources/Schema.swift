@@ -281,7 +281,8 @@ public struct AnySchema: Hashable {
                 return next.properties
             }
 
-            if case let .toOne(type, _)? = next.properties.last?.type {
+            switch next.properties.last?.type {
+            case .toOne(let type, _), .toMany(let type):
                 for property in type.anySchema.properties.values {
                     queue.append(
                         (
@@ -290,6 +291,8 @@ public struct AnySchema: Hashable {
                         )
                     )
                 }
+            default:
+                break
             }
         }
 
