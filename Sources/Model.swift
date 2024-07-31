@@ -60,7 +60,7 @@ extension Model {
 }
 
 public protocol ModelProjection: Hashable {
-    associatedtype Model: Schemata.Model
+    associatedtype Model: Schemata.Model & Sendable
     static var projection: Projection<Model, Self> { get }
 }
 

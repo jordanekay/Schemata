@@ -3,15 +3,15 @@ import Foundation
 /// A projection from some Model type to a Value type.
 ///
 /// Given a dictionary of values used in the projection, this can be used to create a `Value`.
-public struct Projection<Model: Schemata.Model, Value> {
+public struct Projection<Model: Schemata.Model & Sendable, Value>: Sendable {
     /// The `KeyPath`s that are required to create a `Value`.
     public let keyPaths: Set<PartialKeyPath<Model>>
 
-    fileprivate let make: ([PartialKeyPath<Model>: Any]) -> Value
+    fileprivate let make: @Sendable ([PartialKeyPath<Model>: Any]) -> Value
 
     fileprivate init(
         _ keyPaths: Set<PartialKeyPath<Model>>,
-        make: @escaping ([PartialKeyPath<Model>: Any]) -> Value
+        make: @Sendable @escaping ([PartialKeyPath<Model>: Any]) -> Value
     ) {
         self.keyPaths = keyPaths
         self.make = make
@@ -25,7 +25,7 @@ public struct Projection<Model: Schemata.Model, Value> {
 // swiftlint:disable force_cast
 extension Projection {
     public init<A>(
-        _ make: @escaping (A) -> Value,
+        _ make: @Sendable @escaping (A) -> Value,
         _ a: KeyPath<Model, A>
     ) {
         self.init([a]) { values in
@@ -36,7 +36,7 @@ extension Projection {
     }
 
     public init<A, B>(
-        _ make: @escaping (A, B) -> Value,
+        _ make: @Sendable @escaping (A, B) -> Value,
         _ a: KeyPath<Model, A>,
         _ b: KeyPath<Model, B>
     ) {
@@ -49,7 +49,7 @@ extension Projection {
     }
 
     public init<A, B, C>(
-        _ make: @escaping (A, B, C) -> Value,
+        _ make: @Sendable @escaping (A, B, C) -> Value,
         _ a: KeyPath<Model, A>,
         _ b: KeyPath<Model, B>,
         _ c: KeyPath<Model, C>
@@ -64,7 +64,7 @@ extension Projection {
     }
 
     public init<A, B, C, D>(
-        _ make: @escaping (A, B, C, D) -> Value,
+        _ make: @Sendable @escaping (A, B, C, D) -> Value,
         _ a: KeyPath<Model, A>,
         _ b: KeyPath<Model, B>,
         _ c: KeyPath<Model, C>,
@@ -81,7 +81,7 @@ extension Projection {
     }
 
     public init<A, B, C, D, E>(
-        _ make: @escaping (A, B, C, D, E) -> Value,
+        _ make: @Sendable @escaping (A, B, C, D, E) -> Value,
         _ a: KeyPath<Model, A>,
         _ b: KeyPath<Model, B>,
         _ c: KeyPath<Model, C>,
@@ -100,7 +100,7 @@ extension Projection {
     }
 
     public init<A, B, C, D, E, F>(
-        _ make: @escaping (A, B, C, D, E, F) -> Value,
+        _ make: @Sendable @escaping (A, B, C, D, E, F) -> Value,
         _ a: KeyPath<Model, A>,
         _ b: KeyPath<Model, B>,
         _ c: KeyPath<Model, C>,
@@ -121,7 +121,7 @@ extension Projection {
     }
 
     public init<A, B, C, D, E, F, G>(
-        _ make: @escaping (A, B, C, D, E, F, G) -> Value,
+        _ make: @Sendable @escaping (A, B, C, D, E, F, G) -> Value,
         _ a: KeyPath<Model, A>,
         _ b: KeyPath<Model, B>,
         _ c: KeyPath<Model, C>,
@@ -144,7 +144,7 @@ extension Projection {
     }
 
     public init<A, B, C, D, E, F, G, H>(
-        _ make: @escaping (A, B, C, D, E, F, G, H) -> Value,
+        _ make: @Sendable @escaping (A, B, C, D, E, F, G, H) -> Value,
         _ a: KeyPath<Model, A>,
         _ b: KeyPath<Model, B>,
         _ c: KeyPath<Model, C>,
@@ -169,7 +169,7 @@ extension Projection {
     }
 
     public init<A, B, C, D, E, F, G, H, I>(
-        _ make: @escaping (A, B, C, D, E, F, G, H, I) -> Value,
+        _ make: @Sendable @escaping (A, B, C, D, E, F, G, H, I) -> Value,
         _ a: KeyPath<Model, A>,
         _ b: KeyPath<Model, B>,
         _ c: KeyPath<Model, C>,
@@ -196,7 +196,7 @@ extension Projection {
     }
 
     public init<A, B, C, D, E, F, G, H, I, J>(
-        _ make: @escaping (A, B, C, D, E, F, G, H, I, J) -> Value,
+        _ make: @Sendable @escaping (A, B, C, D, E, F, G, H, I, J) -> Value,
         _ a: KeyPath<Model, A>,
         _ b: KeyPath<Model, B>,
         _ c: KeyPath<Model, C>,
@@ -226,3 +226,5 @@ extension Projection {
 }
 
 // swiftlint:enable force_cast
+
+extension PartialKeyPath: @retroactive @unchecked Sendable {}
