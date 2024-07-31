@@ -1,6 +1,6 @@
 import Foundation
 
-public enum PropertyType {
+public enum PropertyType: Sendable {
     case toMany(AnyModel.Type)
     case toOne(AnyModel.Type, nullable: Bool)
     case value(AnyModelValue.Type, nullable: Bool)
@@ -47,7 +47,7 @@ public struct Property<Model: Schemata.Model, Value> {
     }
 }
 
-public struct PartialProperty<Model: Schemata.Model> {
+public struct PartialProperty<Model: Schemata.Model>: Sendable {
     public let keyPath: PartialKeyPath<Model>
     public let path: String
     public let type: PropertyType
