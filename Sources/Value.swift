@@ -1,8 +1,8 @@
 import Foundation
 
-public struct Value<Encoded, Decoded> {
-    public typealias Decoder = (Encoded) -> Result<Decoded, ValueError>
-    public typealias Encoder = (Decoded) -> Encoded
+public struct Value<Encoded, Decoded>: Sendable {
+    public typealias Decoder = @Sendable (Encoded) -> Result<Decoded, ValueError>
+    public typealias Encoder = @Sendable (Decoded) -> Encoded
 
     public let decode: Decoder
     public let encode: Encoder
@@ -22,8 +22,8 @@ extension Value where Encoded == Decoded {
 
 extension Value {
     public func bimap<NewDecoded>(
-        decode: @escaping (Decoded) -> NewDecoded,
-        encode: @escaping (NewDecoded) -> Decoded
+        decode: @Sendable @escaping (Decoded) -> NewDecoded,
+        encode: @Sendable  @escaping (NewDecoded) -> Decoded
     ) -> Value<Encoded, NewDecoded> {
         return Value<Encoded, NewDecoded>(
             decode: { self.decode($0).map(decode) },
@@ -32,8 +32,8 @@ extension Value {
     }
 
     public func bimap<NewDecoded>(
-        decode: @escaping (Decoded) -> Result<NewDecoded, ValueError>,
-        encode: @escaping (NewDecoded) -> Decoded
+        decode: @Sendable @escaping (Decoded) -> Result<NewDecoded, ValueError>,
+        encode: @Sendable @escaping (NewDecoded) -> Decoded
     ) -> Value<Encoded, NewDecoded> {
         return Value<Encoded, NewDecoded>(
             decode: { self.decode($0).flatMap(decode) },
