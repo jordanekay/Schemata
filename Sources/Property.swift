@@ -57,6 +57,16 @@ public struct PartialProperty<Model: Schemata.Model>: Sendable {
         path = property.path
         type = property.type
     }
+
+	init(
+		keyPath: PartialKeyPath<Model>,
+		path: String,
+		type: PropertyType
+	) {
+		self.keyPath = keyPath
+		self.path = path
+		self.type = type
+	}
 }
 
 extension PartialProperty: Hashable {

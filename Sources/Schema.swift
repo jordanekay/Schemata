@@ -14,13 +14,23 @@ public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
     public let name: String
     public let properties: [PartialKeyPath<Model>: PartialProperty<Model>]
 
-    fileprivate init(
-        name: String = String(describing: Model.self),
-        _ properties: PartialProperty<Model>...
-    ) {
-        self.name = name
-        self.properties = Dictionary(uniqueKeysWithValues: properties.map { ($0.keyPath, $0) })
-    }
+	fileprivate init<each T>(
+		name: String = String(describing: Model.self),
+		_ property: repeat Property<Model, each T>
+	) {
+		self.name = name
+
+		var properties: [PartialKeyPath<Model>: PartialProperty<Model>] = [:]
+		for property in repeat each property {
+			properties[property.keyPath] = .init(
+				keyPath: property.keyPath,
+				path: property.path,
+				type: property.type
+			)
+		}
+
+		self.properties = properties
+	}
 
     public func properties(for keyPath: AnyKeyPath) -> [AnyProperty] {
         return AnySchema(self).properties(for: keyPath)
@@ -51,205 +61,22 @@ extension Schema {
 }
 
 extension Schema {
-    public init<A>(
-        _: @escaping (A) -> Model,
-        _ a: Property<Model, A>
-    ) {
-        self.init(PartialProperty(a))
-    }
+	public init<each T>(
+		_: @escaping  (repeat each T) -> Model,
+		_ property: repeat Property<Model, each T>
+	) {
+		self.init(repeat each property)
+	}
 
-    public init<A>(
-        _ initializer: Initializer<Model, A>,
-        _ a: Property<Model, A>
-    ) {
-        self.init(name: initializer.name, PartialProperty(a))
-    }
-
-    public init<A, B>(
-        _: @escaping (A, B) -> Model,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>
-    ) {
-        self.init(PartialProperty(a), PartialProperty(b))
-    }
-
-    public init<A, B>(
-        _ initializer: Initializer<Model, ((A, B))>,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>
-    ) {
-        self.init(
-            name: initializer.name,
-            PartialProperty(a),
-            PartialProperty(b)
-        )
-    }
-
-    public init<A, B, C>(
-        _: @escaping (A, B, C) -> Model,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>
-    ) {
-        self.init(PartialProperty(a), PartialProperty(b), PartialProperty(c))
-    }
-
-    public init<A, B, C>(
-        _ initializer: Initializer<Model, ((A, B, C))>,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>
-    ) {
-        self.init(
-            name: initializer.name,
-            PartialProperty(a),
-            PartialProperty(b),
-            PartialProperty(c)
-        )
-    }
-
-    public init<A, B, C, D>(
-        _: @escaping (A, B, C, D) -> Model,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>,
-        _ d: Property<Model, D>
-    ) {
-        self.init(PartialProperty(a), PartialProperty(b), PartialProperty(c), PartialProperty(d))
-    }
-
-    public init<A, B, C, D>(
-        _ initializer: Initializer<Model, ((A, B, C, D))>,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>,
-        _ d: Property<Model, D>
-    ) {
-        self.init(
-            name: initializer.name,
-            PartialProperty(a),
-            PartialProperty(b),
-            PartialProperty(c),
-            PartialProperty(d)
-        )
-    }
-
-    public init<A, B, C, D, E>(
-        _: @escaping (A, B, C, D, E) -> Model,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>,
-        _ d: Property<Model, D>,
-        _ e: Property<Model, E>
-    ) {
-        self.init(
-            PartialProperty(a),
-            PartialProperty(b),
-            PartialProperty(c),
-            PartialProperty(d),
-            PartialProperty(e)
-        )
-    }
-
-    public init<A, B, C, D, E>(
-        _ initializer: Initializer<Model, ((A, B, C, D, E))>,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>,
-        _ d: Property<Model, D>,
-        _ e: Property<Model, E>
-    ) {
-        self.init(
-            name: initializer.name,
-            PartialProperty(a),
-            PartialProperty(b),
-            PartialProperty(c),
-            PartialProperty(d),
-            PartialProperty(e)
-        )
-    }
-
-    public init<A, B, C, D, E, F>(
-        _: @escaping (A, B, C, D, E, F) -> Model,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>,
-        _ d: Property<Model, D>,
-        _ e: Property<Model, E>,
-        _ f: Property<Model, F>
-    ) {
-        self.init(
-            PartialProperty(a),
-            PartialProperty(b),
-            PartialProperty(c),
-            PartialProperty(d),
-            PartialProperty(e),
-            PartialProperty(f)
-        )
-    }
-
-    public init<A, B, C, D, E, F>(
-        _ initializer: Initializer<Model, ((A, B, C, D, E, F))>,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>,
-        _ d: Property<Model, D>,
-        _ e: Property<Model, E>,
-        _ f: Property<Model, F>
-    ) {
-        self.init(
-            name: initializer.name,
-            PartialProperty(a),
-            PartialProperty(b),
-            PartialProperty(c),
-            PartialProperty(d),
-            PartialProperty(e),
-            PartialProperty(f)
-        )
-    }
-
-    public init<A, B, C, D, E, F, G>(
-        _: @escaping (A, B, C, D, E, F, G) -> Model,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>,
-        _ d: Property<Model, D>,
-        _ e: Property<Model, E>,
-        _ f: Property<Model, F>,
-        _ g: Property<Model, G>
-    ) {
-        self.init(
-            PartialProperty(a),
-            PartialProperty(b),
-            PartialProperty(c),
-            PartialProperty(d),
-            PartialProperty(e),
-            PartialProperty(f),
-            PartialProperty(g)
-        )
-    }
-
-    public init<A, B, C, D, E, F, G>(
-        _ initializer: Initializer<Model, ((A, B, C, D, E, F, G))>,
-        _ a: Property<Model, A>,
-        _ b: Property<Model, B>,
-        _ c: Property<Model, C>,
-        _ d: Property<Model, D>,
-        _ e: Property<Model, E>,
-        _ f: Property<Model, F>,
-        _ g: Property<Model, G>
-    ) {
-        self.init(
-            name: initializer.name,
-            PartialProperty(a),
-            PartialProperty(b),
-            PartialProperty(c),
-            PartialProperty(d),
-            PartialProperty(e),
-            PartialProperty(f),
-            PartialProperty(g)
-        )
-    }
+	public init<each T>(
+		_ initializer: Initializer<Model, (repeat each T)>,
+		_ property: repeat Property<Model, each T>
+	) {
+		self.init(
+			name: initializer.name,
+			repeat each property
+		)
+	}
 }
 
 extension Schema: CustomDebugStringConvertible {
