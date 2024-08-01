@@ -10,6 +10,8 @@ private extension DecodeError {
     }
 }
 
+extension PartialKeyPath: @retroactive @unchecked Sendable {}
+
 public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
     public let name: String
     public let properties: [PartialKeyPath<Model>: PartialProperty<Model>]

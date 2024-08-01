@@ -36,7 +36,7 @@ public struct Property<Model: Schemata.Model, Value> {
     public let path: String
     public let type: PropertyType
 
-    internal init(
+    public init(
         keyPath: KeyPath<Model, Value>,
         path: String,
         type: PropertyType
