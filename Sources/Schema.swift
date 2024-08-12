@@ -16,23 +16,23 @@ public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
     public let name: String
     public let properties: [PartialKeyPath<Model>: PartialProperty<Model>]
 
-	fileprivate init<each T>(
-		name: String = String(describing: Model.self),
-		_ property: repeat Property<Model, each T>
-	) {
-		self.name = name
+    fileprivate init<each T>(
+        name: String,
+        _ property: repeat Property<Model, each T>
+    ) {
+        self.name = name
 
-		var properties: [PartialKeyPath<Model>: PartialProperty<Model>] = [:]
-		for property in repeat each property {
-			properties[property.keyPath] = .init(
-				keyPath: property.keyPath,
-				path: property.path,
-				type: property.type
-			)
-		}
+        var properties: [PartialKeyPath<Model>: PartialProperty<Model>] = [:]
+        for property in repeat each property {
+            properties[property.keyPath] = .init(
+                keyPath: property.keyPath,
+                path: property.path,
+                type: property.type
+            )
+        }
 
-		self.properties = properties
-	}
+        self.properties = properties
+    }
 
     public func properties(for keyPath: AnyKeyPath) -> [AnyProperty] {
         return AnySchema(self).properties(for: keyPath)
@@ -63,22 +63,15 @@ extension Schema {
 }
 
 extension Schema {
-	public init<each T>(
-		_: @escaping  (repeat each T) -> Model,
-		_ property: repeat Property<Model, each T>
-	) {
-		self.init(repeat each property)
-	}
-
-	public init<each T>(
-		_ initializer: Initializer<Model, (repeat each T)>,
-		_ property: repeat Property<Model, each T>
-	) {
-		self.init(
-			name: initializer.name,
-			repeat each property
-		)
-	}
+    public init<each T>(
+        _: @escaping (repeat each T) -> Model,
+        _ property: repeat Property<Model, each T>
+    ) {
+        self.init(
+            name: Model.schemaName,
+            repeat each property
+        )
+    }
 }
 
 extension Schema: CustomDebugStringConvertible {

@@ -50,13 +50,22 @@ public protocol AnyModel {
 }
 
 public protocol Model: AnyModel {
+    associatedtype Path: RawRepresentable<String>
+
     static var schema: Schema<Self> { get }
+    static var schemaName: String { get }
 }
 
 extension Model {
     public static var anySchema: AnySchema {
         return AnySchema(schema)
     }
+}
+
+public extension Collection where Element: Model {
+    typealias Path = Element.Path
+
+    static var schemaName: String { Element.schemaName }
 }
 
 public protocol ModelProjection: Hashable {
