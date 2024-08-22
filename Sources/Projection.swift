@@ -15,10 +15,11 @@ public struct Projection<Model: Schemata.Model & Sendable, Value>: @unchecked Se
 	) {
 		var keyPaths: Set<PartialKeyPath<Model>> = []
 
-		for keyPath in repeat each keyPath {
+		func insertKeyPath<U>(_ keyPath: KeyPath<Model, U>) {
 			keyPaths.insert(keyPath)
 		}
 
+		repeat insertKeyPath(each keyPath)
 		self.keyPaths = keyPaths
 		self.make = make
 	}

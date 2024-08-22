@@ -10,7 +10,7 @@ private extension DecodeError {
     }
 }
 
-extension PartialKeyPath: @retroactive @unchecked Sendable {}
+extension PartialKeyPath: @unchecked Sendable {}
 
 public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
     public let name: String
@@ -23,14 +23,16 @@ public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
         self.name = name
 
         var properties: [PartialKeyPath<Model>: PartialProperty<Model>] = [:]
-        for property in repeat each property {
-            properties[property.keyPath] = .init(
-                keyPath: property.keyPath,
-                path: property.path,
-                type: property.type
-            )
-        }
 
+		func assignProperty<U>(property: Property<Model, U>) {
+			properties[property.keyPath] = .init(
+				keyPath: property.keyPath,
+				path: property.path,
+				type: property.type
+			)
+		}
+
+		repeat assignProperty(property: each property)
         self.properties = properties
     }
 
