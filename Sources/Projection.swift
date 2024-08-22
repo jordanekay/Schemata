@@ -10,16 +10,23 @@ public struct Projection<Model: Schemata.Model & Sendable, Value>: @unchecked Se
     fileprivate let make: ([PartialKeyPath<Model>: Any]) -> Value
 
 	fileprivate init<each T>(
-		beep keyPath: repeat KeyPath<Model, each T>,
+		keyPath: repeat KeyPath<Model, each T>,
 		make: @escaping ([PartialKeyPath<Model>: Any]) -> Value
 	) {
 		var keyPaths: Set<PartialKeyPath<Model>> = []
 
+		#if compiler(>=6.0)
+		for keyPath in repeat each keyPath {
+			keyPaths.insert(keyPath)
+		}
+		#else
 		func insertKeyPath<U>(_ keyPath: KeyPath<Model, U>) {
 			keyPaths.insert(keyPath)
 		}
 
 		repeat insertKeyPath(each keyPath)
+		#endif
+
 		self.keyPaths = keyPaths
 		self.make = make
 	}
@@ -35,7 +42,7 @@ extension Projection {
 		_ make: @Sendable @escaping (repeat each T) -> Value,
 		_ keyPath: repeat KeyPath<Model, each T>
 	) {
-		self.init(beep: repeat each keyPath) { values in
+		self.init(keyPath: repeat each keyPath) { values in
 			make(repeat values[each keyPath] as! each T)
 		}
 	}

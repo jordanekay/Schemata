@@ -24,6 +24,15 @@ public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
 
         var properties: [PartialKeyPath<Model>: PartialProperty<Model>] = [:]
 
+		#if compiler(>=6.0)
+		for property in repeat each property {
+			properties[property.keyPath] = .init(
+				keyPath: property.keyPath,
+				path: property.path,
+				type: property.type
+			)
+		}
+		#else
 		func assignProperty<U>(property: Property<Model, U>) {
 			properties[property.keyPath] = .init(
 				keyPath: property.keyPath,
@@ -33,6 +42,8 @@ public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
 		}
 
 		repeat assignProperty(property: each property)
+		#endif
+
         self.properties = properties
     }
 
