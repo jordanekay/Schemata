@@ -10,7 +10,7 @@ private extension DecodeError {
     }
 }
 
-extension PartialKeyPath: @unchecked Sendable {}
+extension PartialKeyPath: @unchecked Swift.Sendable {}
 
 public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
     public let name: String

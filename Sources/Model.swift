@@ -49,7 +49,7 @@ public protocol AnyModel {
     static var anySchema: AnySchema { get }
 }
 
-public protocol Model: AnyModel {
+public protocol Model: AnyModel, Sendable {
     associatedtype Path: RawRepresentable<String>
 
     static var schema: Schema<Self> { get }
