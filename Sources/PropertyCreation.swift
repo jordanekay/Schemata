@@ -11,6 +11,21 @@ infix operator -?>: SchemataPropertyCreationPrecedence
 infix operator ->>: SchemataPropertyCreationPrecedence
 infix operator <<-: SchemataPropertyCreationPrecedence
 
+public enum IDPath: String {
+	case id
+}
+
+public func * <Model, Value: ModelValue>(
+	lhs: KeyPath<Model, Value>,
+	rhs: IDPath
+) -> Property<Model, Value> {
+	return Property<Model, Value>(
+		keyPath: lhs,
+		path: rhs.rawValue,
+		type: .value(Value.self, nullable: false)
+	)
+}
+
 public func * <Model, Value: ModelValue>(
 	lhs: KeyPath<Model, Value>,
     rhs: Model.Path
@@ -31,6 +46,17 @@ public func * <Model, Value: ModelValue>(
         path: rhs.rawValue,
         type: .value(Value.self, nullable: true)
     )
+}
+
+public func * <Model, Value: ModelValue>(
+	lhs: KeyPath<Model, [Value]>,
+	rhs: IDPath
+) -> Property<Model, [Value]> {
+	return Property<Model, [Value]>(
+		keyPath: lhs,
+		path: rhs.rawValue,
+		type: .value(Value.self, nullable: false)
+	)
 }
 
 public func * <Model, Value: ModelValue>(
