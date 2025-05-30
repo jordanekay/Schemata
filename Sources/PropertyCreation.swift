@@ -98,7 +98,7 @@ public func <<- <Model, Children: Sequence & Schemata.Model>(
 ) -> Property<Model, Children> where Children.Element: Schemata.Model {
     return Property<Model, Children>(
         keyPath: lhs,
-        path: Children.Element.anySchema.properties(for: rhs).last!.path,
+        path: Children.Element.schemaName,
         type: .toMany(Children.self)
     )
 }
