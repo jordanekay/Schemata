@@ -22,8 +22,8 @@ extension Value where Encoded == Decoded {
 
 extension Value {
     public func bimap<NewDecoded>(
-        decode: @Sendable @escaping (Decoded) -> NewDecoded,
-        encode: @Sendable  @escaping (NewDecoded) -> Decoded
+        decode: @escaping (Decoded) -> NewDecoded,
+        encode: @escaping (NewDecoded) -> Decoded
     ) -> Value<Encoded, NewDecoded> {
         return Value<Encoded, NewDecoded>(
             decode: { self.decode($0).map(decode) },
@@ -32,8 +32,8 @@ extension Value {
     }
 
     public func bimap<NewDecoded>(
-        decode: @Sendable @escaping (Decoded) -> Result<NewDecoded, ValueError>,
-        encode: @Sendable @escaping (NewDecoded) -> Decoded
+        decode: @escaping (Decoded) -> Result<NewDecoded, ValueError>,
+        encode: @escaping (NewDecoded) -> Decoded
     ) -> Value<Encoded, NewDecoded> {
         return Value<Encoded, NewDecoded>(
             decode: { self.decode($0).flatMap(decode) },
