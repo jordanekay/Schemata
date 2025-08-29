@@ -24,25 +24,25 @@ public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
 
         var properties: [PartialKeyPath<Model>: PartialProperty<Model>] = [:]
 
-		#if compiler(>=6.0)
-		for property in repeat each property {
-			properties[property.keyPath] = .init(
-				keyPath: property.keyPath,
-				path: property.path,
-				type: property.type
-			)
-		}
-		#else
-		func assignProperty<U>(property: Property<Model, U>) {
-			properties[property.keyPath] = .init(
-				keyPath: property.keyPath,
-				path: property.path,
-				type: property.type
-			)
-		}
+        #if compiler(>=6.0)
+            for property in repeat each property {
+                properties[property.keyPath] = .init(
+                    keyPath: property.keyPath,
+                    path: property.path,
+                    type: property.type
+                )
+            }
+        #else
+            func assignProperty<U>(property: Property<Model, U>) {
+                properties[property.keyPath] = .init(
+                    keyPath: property.keyPath,
+                    path: property.path,
+                    type: property.type
+                )
+            }
 
-		repeat assignProperty(property: each property)
-		#endif
+            repeat assignProperty(property: each property)
+        #endif
 
         self.properties = properties
     }
@@ -56,8 +56,8 @@ public struct Schema<Model: Schemata.Model>: Hashable, Sendable {
     }
 }
 
-extension Schema {
-    public subscript<Value>(_ keyPath: KeyPath<Model, Value>) -> Property<Model, Value> {
+public extension Schema {
+    subscript<Value>(_ keyPath: KeyPath<Model, Value>) -> Property<Model, Value> {
         let partial = self[keyPath as PartialKeyPath<Model>]
         return Property<Model, Value>(
             keyPath: partial.keyPath as! KeyPath<Model, Value>, // swiftlint:disable:this force_cast
@@ -66,17 +66,17 @@ extension Schema {
         )
     }
 
-    public subscript<Value>(_ keyPath: KeyPath<Model, Value>) -> AnyProperty {
+    subscript<Value>(_ keyPath: KeyPath<Model, Value>) -> AnyProperty {
         return AnyProperty(self[keyPath as PartialKeyPath<Model>])
     }
 
-    public subscript(_ keyPath: PartialKeyPath<Model>) -> PartialProperty<Model> {
+    subscript(_ keyPath: PartialKeyPath<Model>) -> PartialProperty<Model> {
         return properties[keyPath]!
     }
 }
 
-extension Schema {
-    public init<each T>(
+public extension Schema {
+    init<each T>(
         _: @escaping (repeat each T) -> Model,
         _ property: repeat Property<Model, each T>
     ) {
@@ -99,6 +99,8 @@ public struct AnySchema: Hashable {
     public var name: String
     public var properties: [AnyKeyPath: AnyProperty]
 
+    private static var cache: [AnyKeyPath: [AnyProperty]] = [:]
+
     public init<Model>(_ schema: Schema<Model>) {
         let properties = schema.properties.map { ($0.key as AnyKeyPath, AnyProperty($0.value)) }
         name = schema.name
@@ -106,6 +108,10 @@ public struct AnySchema: Hashable {
     }
 
     public func properties(for keyPath: AnyKeyPath) -> [AnyProperty] {
+        if let properties = Self.cache[keyPath] {
+            return properties
+        }
+
         var queue: [(keyPath: AnyKeyPath, properties: [AnyProperty])]
             = properties.values.map { ($0.keyPath, [$0]) }
 
@@ -113,11 +119,12 @@ public struct AnySchema: Hashable {
             queue.removeFirst()
 
             if next.keyPath == keyPath {
+                Self.cache[keyPath] = next.properties
                 return next.properties
             }
 
             switch next.properties.last?.type {
-            case .toOne(let type, _), .toMany(let type):
+            case let .toOne(type, _), let .toMany(type):
                 for property in type.anySchema.properties.values {
                     queue.append(
                         (
