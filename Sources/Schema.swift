@@ -99,6 +99,7 @@ public struct AnySchema: Hashable {
     public var name: String
     public var properties: [AnyKeyPath: AnyProperty]
 
+    private static let cacheLock = NSLock()
     private static var cache: [AnyKeyPath: [AnyProperty]] = [:]
 
     public init<Model>(_ schema: Schema<Model>) {
@@ -108,7 +109,7 @@ public struct AnySchema: Hashable {
     }
 
     public func properties(for keyPath: AnyKeyPath) -> [AnyProperty] {
-        if let properties = Self.cache[keyPath] {
+        if let properties = Self.cachedProperties(for: keyPath) {
             return properties
         }
 
@@ -119,7 +120,7 @@ public struct AnySchema: Hashable {
             queue.removeFirst()
 
             if next.keyPath == keyPath {
-                Self.cache[keyPath] = next.properties
+                Self.cacheProperties(next.properties, for: keyPath)
                 return next.properties
             }
 
@@ -139,5 +140,17 @@ public struct AnySchema: Hashable {
         }
 
         return []
+    }
+
+    private static func cachedProperties(for keyPath: AnyKeyPath) -> [AnyProperty]? {
+        cacheLock.lock()
+        defer { cacheLock.unlock() }
+        return cache[keyPath]
+    }
+
+    private static func cacheProperties(_ properties: [AnyProperty], for keyPath: AnyKeyPath) {
+        cacheLock.lock()
+        defer { cacheLock.unlock() }
+        cache[keyPath] = properties
     }
 }
